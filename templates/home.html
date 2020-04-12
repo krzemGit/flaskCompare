@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Search Comparator</h1>
+<form action="/results/" method="GET">
+    <div class="phrase mt-4">{{ form.phrase(placeholder="Enter a search phrase")}}</div>
+    <div class="platforms mt-4">
+        <p>{{ form.amazon }} {{ form.amazon.label }}</p>
+        <p>{{ form.ebay }} {{ form.ebay.label }}</p>
+        <p>{{ form.allegro }} {{ form.allegro.label }}</p>
+        <input type="submit" value="Search" class="btn btn-outline-primary">   
+    </div>
+</form>
+    
+
+{% endblock %}
