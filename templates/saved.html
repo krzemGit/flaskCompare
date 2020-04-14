@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="alert alert-secondary mt-5" role="alert">
+    <h5>Your search has been saved!</h5>
+    <p>on the date of {{ submit_date }}</p>
+    <p>Search title: {{ title }}</p>
+    <p>Phrase: {{ phrase | safe }}</p>
+    <p>Results number: {{ res_no }}</p>
+  </div>
+
+
+{% endblock %}

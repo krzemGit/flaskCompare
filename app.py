@@ -1,11 +1,12 @@
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, Markup
 from flask_sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, StringField, validators
-from common import translate_to_polish, amazon_search, ebay_search, allegro_search
+from common import translate_to_polish, amazon_search, ebay_search, allegro_search, session_results, create_id
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///saves.db'
+app.config['SECRET_KEY'] = 'konstantynopolitanczykowianeczka'
 
 db = SQLAlchemy(app)
 
@@ -32,6 +33,7 @@ class Search(db.Model):
 
 class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    search_id = db.Column(db.Integer)
     platform = db.Column(db.String(), nullable=False)
     title = db.Column(db.String(), nullable=False)
     link = db.Column(db.String(), nullable=False)
@@ -39,7 +41,7 @@ class Result(db.Model):
     price_info = db.Column(db.PickleType)
 
     def __repr__(self):
-        return f"Result('{self.id}', '{self.platform}', '{self.title}', '{self.price_info[1]}')"
+        return f"Result('{self.id}', '{self.platform}', '{self.title}', '{self.price_info[0]}')"
 
 @app.route('/', methods=['POST','GET'])
 def home():
@@ -49,25 +51,47 @@ def home():
 @app.route('/results/', methods=['GET', 'POST'])
 def results():
     if request.method == 'POST':
-        # TODO get data from the form (use session for transferring data)
-        # use resutls use iterating over values of a dict, each value a separate list of object, only objects go to database
+        searches = Search.query.all()
+        if len(searches) > 0:
+            id = create_id(searches)
+        else:
+            id = 1
+        name = request.form.get('your-name')
+        submit_date = datetime.utcnow()
+        search_title = request.form.get('search-title', 'no title')
+        sphrase = session.get('sphrase', None)
+        strans_phrase = session.get('stransphrase', None)
+        sresults = session.get('sresults', None)
+        res_no = len(sresults)
+        phrase = f'<span id="phrase">{sphrase}</span><span class="trans-phrase"> (pol. {strans_phrase})</span>'
+       
+        db.session.add(Search(id=id , username=name , search_title=search_title , phrase=phrase))
+        db.session.commit()
+
+        for item in sresults:
+            db.session.add(Result(search_id=id , platform=item['platform'] , title=item['title'] , link=item['link'] , image=item['image'] , price_info=list(item['price'])))
+            db.session.commit()
+
+        session.clear()
+
+        return render_template('saved.html', submit_date=submit_date, title=search_title, phrase=phrase, res_no=res_no)
+
     elif request.method == 'GET':
         phrase = request.args.get('phrase')
         amazon = request.args.get('amazon')
         ebay = request.args.get('ebay')
         allegro = request.args.get('allegro')
         trans_phrase = translate_to_polish(phrase)
-        # dictionary of JSON lists
-        results = {}
+        results = []
         if amazon:
-            results['amazon'] = amazon_search(phrase)
+            results.extend(amazon_search(phrase))
         if ebay:
-            results['ebay'] = ebay_search(phrase)
+            results.extend(ebay_search(phrase))
         if allegro:
-            results['allegro'] = allegro_search(trans_phrase)
+            results.extend(allegro_search(trans_phrase))
         session['sphrase'] = phrase
         session['stransphrase'] = trans_phrase
-        session['sresults'] = results
+        session['sresults'] = session_results(results)
         return render_template('results.html', phrase=phrase, pol_phrase=trans_phrase, amazon=amazon, ebay=ebay, allegro=allegro, results=results)
     
 if __name__ == "__main__":

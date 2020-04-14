@@ -122,19 +122,21 @@ def amazon_search(phrase):
     # main sub-function, compose list of objects - each object a search result
     # html_element is an element (list) for search from amazon, price_tags is a tag list for prices (primary and secondary)
         results = []
-        for article in html_element:
-            platform = 'amazon'
-            title = article.h2.a.span.text
-            link = 'https://www.amazon.com' + article.h2.a['href']
-            image = article.img['src']
+        if len(html_element) > 0:
+            for article in html_element[0:3]:
+                print(article)
+                platform = 'amazon'
+        #         title = article.h2.a.span.text
+        #         link = 'https://www.amazon.com' + article.h2.a['href']
+        #         image = article.img['src']
 
-            price_info = compose_price_info(article, price_tags)
-            price_updated = price_check(price_info)
+        #         price_info = compose_price_info(article, price_tags)
+        #         price_updated = price_check(price_info)
 
-            # the function returns list of dictionaries (quasi-JSON)
-            results.append({'platform': platform, 'title': title, 'link': link, 'image':image, 'price': price_updated})
+        #         # the function returns list of dictionaries (quasi-JSON)
+        #         results.append({'platform': platform, 'title': title, 'link': link, 'image':image, 'price': price_updated})
 
-        return results
+        # return results
     # launch main subfucntion
 
     amazon_results = amazon_search_json(articles, priceholder_tags)
@@ -243,9 +245,45 @@ def allegro_search(phrase):
 
     return allegro_results
 
-# amazon = amazon_search('horus')
+def session_results(results):
+    # limits the number of search results to 10 per platform
+    ses_res = []
+    platforms = ['amazon', 'ebay', 'allegro']
+
+    for platform in platforms:
+        i = 0
+        for result in results:
+            if i < 10 and result['platform'] == platform:
+                ses_res.append(result)
+                i += 1
+    
+    return ses_res
+
+
+def create_id(searches):
+    search_ids = []
+    for search in searches:
+        search_ids.append(search.id)
+    for i in range(20):
+        if i not in search_ids:
+            return i
+
+
+# results = []
+
+# amazon = amazon_search('liquid')
 # ebay = ebay_search('horus')
 # allegro = allegro_search('horus')
+
+# results.extend(amazon)
+# results.extend(ebay)
+# results.extend(allegro)
+
+# s_res = session_results(results)
+# for i, item in enumerate(s_res):
+#     print(f'---{i+1}---')
+#     print(item)
+
 # print_results(allegro)
 # print(ebay[0])
 # print(allegro[0])
