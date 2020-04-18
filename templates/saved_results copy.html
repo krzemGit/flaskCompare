@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- form -->
+<section class="saved-results-head">
+    <form action="{{ url_for('saved_results') }}" method="get">
+        <select name="id" id="id" onchange="this.form.submit()">
+            {% if id == 0 %}
+                <option value="0">=== Choose your search ===</option> 
+            {% else %}
+                <option value="0">=== Choose another search ===</option>
+            {% endif %}
+            {% for search in searches %}
+                <option value="{{search.id}}"><span>{{ search.search_title }}</span> / <span>{{ search.search_date }}</span></option>
+            {% endfor %}
+        </select>
+    </form>
+</section>
+
+<!-- alert -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-primary" role="alert">
+            <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- display search -->
+{% for search in searches if search.id == search_id %}
+    <div class="search-wrapper" class="mb-5">
+        <p class="title"><span class="search-template">User name: </span><span class="search-info">{{ search.username }}</span></p>
+        <p class="title"><span class="search-template">Search title: </span><span class="search-info">{{ search.search_title}}</span></p>
+        <p class="title"><span class="search-template">Search date: </span><span class="search-info">{{ search.search_date }}</span></p>
+        <p class="title"><span class="search-template">Phrase: </span><span class="search-info">{{ search.phrase | striptags }}</span></p>
+    </div>
+</div>
+{% endfor %}
+
+<!-- display results -->
+{% for platform in platforms %}
+    <div id="{{ platform }}-results" class="container d-flex flex-row" style="overflow: auto">
+        {% for result in results if result.platform == platform %}
+            <div class="card col-3">
+            <img class="card-img-top" src="{{ result.image }}" alt="Card image cap" style="filter: grayscale(100%);">
+                <div class="card-body">
+                    <h6 class="card-title">{{ result.title }}</h6>
+                    <p class="card-text">
+                        {% for item in result.price %}
+                        <p>{{ item | safe }}</p>
+                        {% endfor %}
+                    </p>
+                    <a href="{{ result.link }}" class="btn btn-primary">Go to the item</a>
+                </div>
+                </div>
+        {% endfor %}
+    </div>
+{% endfor %}
+{% endblock %}
+

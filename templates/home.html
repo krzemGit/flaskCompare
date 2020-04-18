@@ -12,6 +12,18 @@
         <input type="submit" value="Search" class="btn btn-outline-primary">   
     </div>
 </form>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-primary" role="alert">
+            <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endwith %}
     
 
 {% endblock %}

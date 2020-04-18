@@ -1,4 +1,24 @@
-import requests
+###################################################################
+# MAIN MODULE FOR AUXILIARY FUNCTIONS, MOSTLY FOR WEBSCRAPPING:
+# 1. Global variables: 
+#   -   headers required to trick amazon that it is na actual user searching, 
+#   -   client is link to credentials for google translate API
+# 2. Function for translating search phrase to Polish for Allegro (translate_to_polish())
+# 3. Two debugging functions: one for printing in terminal, one for writing to file.
+# 4. Webscrapping functions - the core of the app:
+#   -   The first is a formatting function for price info. 
+#       This info is convoluted for amazon and had to be properly formatted.
+#       The other info had to be adjucted accordingly.
+#   -   The next three functions are for webscrapping in each of the platforms.
+#       Each function consists of two-three subfunctions.
+# 5. Database functions, they limit and taylor the data for display and save in database:
+#   -   The first function limits results to 10 for each platform in one search.
+#       This allows to keep the database small and clean (it is necessary to keep it small on a payed server).
+#   -   The latter sets the common id for searches and results.
+###################################################################
+
+
+import requests, datetime
 from bs4 import BeautifulSoup
 
 # imports for google tranlate API
@@ -11,6 +31,8 @@ headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64;     x64; rv:66.0) 
 # credentials for google translate API
 client = service_account.Credentials.from_service_account_file('.\credentials\\flask-search-compare-d835fbdd59a9.json')
 
+
+### TRANSLATOR FUNCTION
 def translate_to_polish(phrase):
     # translates from English to Polish for Allegro
     translation_client = translate_v2.Client(target_language='pl')
@@ -19,15 +41,7 @@ def translate_to_polish(phrase):
     return result['translatedText']
 
 
-def price_info_format(price_info_list):
-    # changes the info list into the html format, ready for display
-    for i, item in enumerate(price_info_list):
-        if item.startswith('$') or item.endswith('zł'):
-            price_info_list[i] = f'<span class="price"> {item}</span>'
-    final_list = ' '.join(price_info_list)
-    return final_list
-
-
+### DEBUGGING FUNCTIONS
 def print_to_file(data):
     # function for debugging reasons
     with open('search_data.txt', 'w') as filename:
@@ -45,13 +59,25 @@ def print_results(result_json):
         print(item['price'])
         print()
 
+
+
+### WEBSCRAPPING FUNCTIONS
+def price_info_format(price_info_list):
+    # changes the info list into the html format, ready for display
+    for i, item in enumerate(price_info_list):
+        if item.startswith('$') or item.endswith('zł'):
+            price_info_list[i] = f'<span class="price"> {item}</span>'
+    final_list = ' '.join(price_info_list)
+    return final_list
+
+
 def amazon_search(phrase):
 # function for search at amazon
 
     source = requests.get(f'https://www.amazon.com/s?k={phrase}', headers=headers).text
     soup = BeautifulSoup(source, 'lxml')
-    
-    articles = soup.select('div[data-index]')
+
+    articles = soup.select('div[data-component-type="s-search-result"]')
 
     # these are class endings taht indicate the first price container (usually the lowest) or the secondar price containers
     priceholder_tags = ['small', 'mini'] 
@@ -62,10 +88,6 @@ def amazon_search(phrase):
         for info_tag in price_tags:
             # indicating cointainer for price info
             main_tag = article.find_all('div', class_=f'a-section a-spacing-none a-spacing-top-{info_tag}')
-            
-            for i, item in enumerate(main_tag):
-                with open(f'{info_tag}{i}', 'w') as log_file:
-                    log_file.write(item.prettify()) 
 
             # recognizing if this is the main container or the container for additional options
             if info_tag == 'small':
@@ -123,26 +145,25 @@ def amazon_search(phrase):
     # html_element is an element (list) for search from amazon, price_tags is a tag list for prices (primary and secondary)
         results = []
         if len(html_element) > 0:
-            for article in html_element[0:3]:
-                print(article)
+            for i, article in enumerate(html_element):
                 platform = 'amazon'
-        #         title = article.h2.a.span.text
-        #         link = 'https://www.amazon.com' + article.h2.a['href']
-        #         image = article.img['src']
+                title = article.h2.a.span.text
+                print(f'Article {i} ok!')
+                link = 'https://www.amazon.com' + article.h2.a['href']
+                image = article.img['src']
 
-        #         price_info = compose_price_info(article, price_tags)
-        #         price_updated = price_check(price_info)
+                price_info = compose_price_info(article, price_tags)
+                price_updated = price_check(price_info)
 
-        #         # the function returns list of dictionaries (quasi-JSON)
-        #         results.append({'platform': platform, 'title': title, 'link': link, 'image':image, 'price': price_updated})
+                # the function returns list of dictionaries (quasi-JSON)
+                results.append({'platform': platform, 'title': title, 'link': link, 'image':image, 'price': price_updated})
 
-        # return results
+        return results
     # launch main subfucntion
 
     amazon_results = amazon_search_json(articles, priceholder_tags)
     return amazon_results
 
-# horus_search = amazon('horus')
 
 def ebay_search(phrase):
 # function for search at ebay
@@ -188,8 +209,6 @@ def ebay_search(phrase):
     result_ebay = create_result_json(result_list)
 
     return result_ebay
-
-translate_to_polish('plate') 
 
 
 def allegro_search(phrase):
@@ -245,6 +264,8 @@ def allegro_search(phrase):
 
     return allegro_results
 
+
+### DATABASE FUNCTIONS
 def session_results(results):
     # limits the number of search results to 10 per platform
     ses_res = []
@@ -264,28 +285,6 @@ def create_id(searches):
     search_ids = []
     for search in searches:
         search_ids.append(search.id)
-    for i in range(20):
+    for i in range(1, 20):
         if i not in search_ids:
             return i
-
-
-# results = []
-
-# amazon = amazon_search('liquid')
-# ebay = ebay_search('horus')
-# allegro = allegro_search('horus')
-
-# results.extend(amazon)
-# results.extend(ebay)
-# results.extend(allegro)
-
-# s_res = session_results(results)
-# for i, item in enumerate(s_res):
-#     print(f'---{i+1}---')
-#     print(item)
-
-# print_results(allegro)
-# print(ebay[0])
-# print(allegro[0])
-# print_to_file(str(ebay))
-# print(translate_to_polish('horus'))

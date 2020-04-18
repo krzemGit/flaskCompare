@@ -1,3 +1,4 @@
 credentials/
 credentials.bat
 *.pyc
+*.bat
