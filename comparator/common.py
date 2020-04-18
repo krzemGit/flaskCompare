@@ -147,7 +147,6 @@ def amazon_search(phrase):
             for i, article in enumerate(html_element):
                 platform = 'amazon'
                 title = article.h2.a.span.text
-                print(f'Article {i} ok!')
                 link = 'https://www.amazon.com' + article.h2.a['href']
                 image = article.img['src']
 
