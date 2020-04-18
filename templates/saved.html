@@ -3,7 +3,7 @@
 {% block content %}
 <div class="section-head--saved">
   <p><a href="{{ url_for('home') }}">back to homepage</a></p>
-  <p><a href="{{ url_for('home') }}">browse saved results</a></p>
+  <p><a href="{{ url_for('ajax_results') }}">browse saved results</a></p>
 </div>
   {% if db_full %}
   <div class="alert alert-secondary mt-5" role="alert">
@@ -21,7 +21,4 @@
       <p>Results number: {{ res_no }}</p>
     </div>
   {% endif %}
-
-
-
 {% endblock %}

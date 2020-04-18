@@ -4,12 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, StringField, validators
 from common import translate_to_polish, amazon_search, ebay_search, allegro_search, session_results, create_id
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///saves.db'
 app.config['SECRET_KEY'] = 'konstantynopolitanczykowianeczka'
 
 db = SQLAlchemy(app)
-ma = Marshmallow(app)
+
+from models import Search, Result
 
 # search form
 class First_search(Form):
@@ -19,6 +21,7 @@ class First_search(Form):
     allegro = BooleanField('allegro')
 
 @app.route('/', methods=['POST','GET'])
+@app.route('/home', methods=['POST','GET'])
 def home():
     form = First_search()
     return render_template('home.html', form=form)
@@ -29,7 +32,7 @@ def results():
         searches = Search.query.all()
         if len(searches) == 0:
             id = 1
-        elif len(searches) <= 9:
+        elif len(searches) <= 20:
             id = create_id(searches)
         else:
             return render_template('saved.html', db_full=True)
@@ -110,7 +113,7 @@ def ajax_results():
                             template_name=template_name)
 
 @app.route('/ajax-request', methods=['GET', 'POST'])
-def ajax_resquest():
+def ajax_request():
     search_id = request.args.get('id', 0)
     search_id = int(search_id)
     search = Search.query.filter_by(id=search_id).first()
