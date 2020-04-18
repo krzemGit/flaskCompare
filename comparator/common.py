@@ -17,7 +17,6 @@
 #   -   The latter sets the common id for searches and results.
 ###################################################################
 
-
 import requests, datetime
 from bs4 import BeautifulSoup
 
@@ -29,7 +28,7 @@ from google.oauth2 import service_account
 headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64;     x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding":"gzip, deflate",     "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 
 # credentials for google translate API
-client = service_account.Credentials.from_service_account_file('.\credentials\\flask-search-compare-d835fbdd59a9.json')
+client = service_account.Credentials.from_service_account_file('.\\comparator\\credentials\\flask-search-compare-d835fbdd59a9.json')
 
 
 ### TRANSLATOR FUNCTION

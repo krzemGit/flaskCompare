@@ -1,33 +1,28 @@
+from comparator import app, db
+from comparator.common import (translate_to_polish, 
+                    amazon_search, 
+                    ebay_search, 
+                    allegro_search, 
+                    session_results, 
+                    create_id)
+from comparator.forms import First_search 
+from comparator.models import Search, Result
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from wtforms import Form, BooleanField, StringField, validators
-from common import translate_to_polish, amazon_search, ebay_search, allegro_search, session_results, create_id
+from flask import render_template, request, redirect, url_for, session, flash
 
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///saves.db'
-app.config['SECRET_KEY'] = 'konstantynopolitanczykowianeczka'
-
-db = SQLAlchemy(app)
-
-from models import Search, Result
-
-# search form
-class First_search(Form):
-    phrase = StringField('phrase', [validators.InputRequired()])
-    amazon = BooleanField('amazon')
-    ebay = BooleanField('ebay')
-    allegro = BooleanField('allegro')
-
+# homepage
 @app.route('/', methods=['POST','GET'])
 @app.route('/home', methods=['POST','GET'])
 def home():
     form = First_search()
     return render_template('home.html', form=form)
 
+
+# main view of results - the longest route
 @app.route('/results/', methods=['GET', 'POST'])
 def results():
+    # save resutls to database
     if request.method == 'POST':
         searches = Search.query.all()
         if len(searches) == 0:
@@ -61,6 +56,7 @@ def results():
 
         return render_template('saved.html', submit_date=submit_date, title=search_title, phrase=phrase, res_no=res_no, db_full=False)
 
+    # displays results after webscrapping
     elif request.method == 'GET':
         phrase = request.args.get('phrase')
         amazon = request.args.get('amazon')
@@ -79,6 +75,8 @@ def results():
         session['sresults'] = session_results(results)
         return render_template('results.html', phrase=phrase, pol_phrase=trans_phrase, amazon=amazon, ebay=ebay, allegro=allegro, results=results)
 
+
+# clears the database - limits the searches to the last 10 searches
 @app.route('/clear')
 def clear():
     searches = Search.query.order_by(Search.search_date.desc()).all()
@@ -96,6 +94,7 @@ def clear():
     flash('Database cleared to last 10 searches!')
     return redirect(url_for('home'))
 
+# routs for displaying saved results with Ajax
 @app.route('/ajax-results', methods=['GET', 'POST'])
 def ajax_results():
     template_name = 'ajax'
@@ -122,6 +121,8 @@ def ajax_request():
 
     return render_template('display_saved_ajax.html', results=results, search=search, platforms=platforms)
 
+
+# routs for displaying saved results with redirects (GET method)
 @app.route('/saved-results', methods=['GET'])
 def saved_results():
     template_name = 'reload'
@@ -137,7 +138,3 @@ def saved_results():
                             results=results, 
                             platforms=platforms, 
                             template_name=template_name)
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
