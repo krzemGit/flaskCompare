@@ -6,19 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block head %}
     {% endblock %}
+
+    <!-- Font Awsome -->
+    <script src="https://kit.fontawesome.com/2b9471e61e.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 
     <title>Search-Comparator</title>
   </head>
   <body>
-        <div class="container">
-            <div class="row d-block">
-                {% block content %}
-                {% endblock %}
-            </div>
+    <section id="search">
+      <div class="main--navbar-container">
+        <div class="nav--logo-wrapper">
+          <img src="{{ url_for( 'static', filename='./img/compare_icon.png') }}" alt="" width="50px" height="50px" class="nav--app-logo">
+          <div class="nav--app-name">compare app</div>
         </div>
+        <nav>
+          <ul class="nav-list">
+            <li class="nav-item active"><a href="{{ url_for('home')}}" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="{{ url_for('saved_results')}}" class="nav-link">Saved Results</a></li>
+            <li class="nav-item"><a href="{{ url_for('home')}}" class="nav-link">About</a></li>
+          </ul>
+        </nav>
+        <div class="nav--hamburger-icon">
+          <div class="nav--hamburger-line line-1"></div>
+          <div class="nav--hamburger-line line-2"></div>
+          <div class="nav--hamburger-line line-3"></div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row search-row">
+          {% block search %}
+          {% endblock %}
+          <div class="icon-background-wrapper">
+            <img src="{{ url_for( 'static', filename='./img/compare_icon.png') }}" alt="" width="300px" height="300px" class="background--app-logo">
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="result">
+      <div class="container">
+        <div class="row">
+          {% block result %}
+          {% endblock %}
+        </div>
+      </div> 
+    </section>
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -27,5 +62,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    {% block script %}
+    {% endblock %}
   </body>
 </html>

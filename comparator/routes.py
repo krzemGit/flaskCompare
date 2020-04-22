@@ -16,7 +16,7 @@ from flask import render_template, request, redirect, url_for, session, flash
 @app.route('/home', methods=['POST','GET'])
 def home():
     form = First_search()
-    return render_template('home.html', form=form)
+    return render_template('home.html', form=form, template_name='home')
 
 
 # main view of results - the longest route

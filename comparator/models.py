@@ -1,5 +1,5 @@
 from comparator import db
-from datetime import datetime
+from datetime import datetime, date
 
 class Search(db.Model):
     id = db.Column(db.Integer, primary_key=True)

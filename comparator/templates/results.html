@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block search %}
 <div class="search-head container d-flex flex-row justify-content-between">
     <div class="search-details-wrapper d-block">
         <h1>Results</h1>
@@ -39,6 +39,9 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block result %}
 {% if amazon %} 
     <div id="amazon-results" class="container d-flex flex-row" style="overflow: auto">
         {% for result in results %} 

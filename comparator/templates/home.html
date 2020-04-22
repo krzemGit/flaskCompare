@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block head %}
+    <meta id="identifier" template-name="{{ template_name }}">
+{% endblock %}
 
-<h1>Search Comparator</h1>
+{% block search %}
 <form action="/results/" method="GET">
-    <div class="phrase mt-4">{{ form.phrase(placeholder="Enter a search phrase")}}</div>
     <div class="platforms mt-4">
-        <p>{{ form.amazon }} {{ form.amazon.label }}</p>
-        <p>{{ form.ebay }} {{ form.ebay.label }}</p>
-        <p>{{ form.allegro }} {{ form.allegro.label }}</p>
-        <input type="submit" value="Search" class="btn btn-outline-primary">   
+        <p class="checkbox">{{ form.amazon }} {{ form.amazon.label }}</p>
+        <p class="checkbox">{{ form.ebay }} {{ form.ebay.label }}</p>
+        <p class="checkbox">{{ form.allegro }} {{ form.allegro.label }}</p>
     </div>
+    <div class="phrase mt-4">{{ form.phrase(placeholder="Enter a search phrase", class_="text-field")}}</div>
+    
+    <div class="platform-icons mt-4">
+        <p class="platform--icon-wrapper amazon-wrapper"><i class="fab fa-amazon fa-2x"></i></p>
+        <p class="platform--icon-wrapper ebay-wrapper"><i class="fab fa-ebay fa-3x"></i></p>
+        <p class="platform--icon-wrapper allegro-wrapper"><img class="allegro" src="{{ url_for( 'static', filename='./img/allegro-icon.png' ) }}" alt="" width="60px" height="60px"></p>
+    </div>
+    <input type="submit" value="Search" class="btn">  
 </form>
 
 {% with messages = get_flashed_messages() %}

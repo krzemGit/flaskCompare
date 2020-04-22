@@ -4,23 +4,26 @@
     <meta id="identifier" template-name="{{ template_name }}">
 {% endblock %}
 
-{% block content %}
+{% block search %}
 
 <!-- form -->
 <section class="saved-results-head">
     <form action="{{ url_for('saved_results') }}" method="get">
-        <select name="id" id="id">
-            {% if request.method == 'GET' %}
-                {% if id == 0 %}
-                    <option value="0">=== Choose your search ===</option> 
-                {% else %}
-                    <option value="0">=== Choose another search ===</option>
+        <div class="option-wrapper">
+            <select name="id" id="id">
+                {% if request.method == 'GET' %}
+                    {% if id == 0 %}
+                        <option value="0"><div class="option">=== Choose your search ===</div></option> 
+                    {% else %}
+                        <option value="0"><div class="option">=== Choose another search ===</div></option>
+                    {% endif %}
+                    {% for search in searches %}
+                        <option value="{{search.id}}"><div class="option"><span>{{ search.search_title }}</span> | <span>phrase: {{ (search.phrase|striptags()).split()[0] }}</span> | <span>{{ search.search_date.strftime('%d-%m-%Y') }}</span></div></option>
+                    {% endfor %}
                 {% endif %}
-                {% for search in searches %}
-                    <option value="{{search.id}}"><span>{{ search.search_title }}</span> / <span>{{ search.search_date }}</span></option>
-                {% endfor %}
-            {% endif %}
-        </select>
+                
+            </select>
+        </div>
     </form>
 </section>
 <!-- alert -->
@@ -35,6 +38,9 @@
         </div>
     {% endif %}
 {% endwith %}
+{% endblock %}
+
+{% block results %}
 <div class="display-container">
     <!-- display search -->
     {% for search in searches if search.id == search_id %}
@@ -69,5 +75,9 @@
     {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for( 'static' , filename='ajax.js')}}"></script>
 {% endblock %}
 
