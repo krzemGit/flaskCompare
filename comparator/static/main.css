@@ -209,6 +209,33 @@ img.background--app-logo {
     opacity: .3;
 }
 
+/* saved search detailes */
+
+section.saved-results-head {
+    display: flex;
+    flex-direction: row;
+}
+
+div.display-search-container, form.saved-results {
+    height: 350px;
+}
+
+div.display-search-container {
+    display: block;
+    width: 300px
+}
+
+p.search-template {
+    font-weight: 700;
+    margin-bottom: 0px;
+}
+
+div.head-separator {
+    height: 280px;
+    border: 1px solid var(--main-section-darker);
+    margin: auto 50px
+}
+
 
 
 

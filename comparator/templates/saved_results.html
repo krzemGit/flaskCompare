@@ -6,9 +6,28 @@
 
 {% block search %}
 
-<!-- form -->
 <section class="saved-results-head">
-    <form action="{{ url_for('saved_results') }}" method="get">
+    <div class="display-search-container">
+        <!-- display search -->
+        {% for search in searches if search.id == search_id %}
+            <div class="search-wrapper" class="mb-5">
+                <div class="saved-result--username"><p class="search-template">User name: </p><p class="search-info">{{ search.username }}</p></div>
+                <div class="saved-result--title"><p class="search-template">Search title: </p><p class="search-info">{{ search.search_title}}</p></div>
+                <div class="saved-result--date"><p class="search-template">Search date: </p><p class="search-info">{{ search.search_date.strftime('%d-%m-%Y') }}</p></div>
+                <div class="saved-result--phrase"><p class="search-template">Phrase: </p><p class="search-info">{{ search.phrase | striptags }}</p></div>
+                <div class="saved-result--platforms"><p class="search-template">pltaforms: </p>
+                    {% for result in results %}
+                        {% if result.search_id == search.id %}
+                            <p class="search-info">{{ result.platform }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>                
+            </div>
+        {% endfor %}
+        </div>
+        <div class="head-separator"></div>
+        <!-- form -->
+    <form action="{{ url_for('saved_results') }}" method="get" class="saved-results">
         <div class="option-wrapper">
             <select name="id" id="id">
                 {% if request.method == 'GET' %}
@@ -41,17 +60,8 @@
 {% endblock %}
 
 {% block results %}
-<div class="display-container">
-    <!-- display search -->
-    {% for search in searches if search.id == search_id %}
-        <div class="search-wrapper" class="mb-5">
-            <p class="title"><span class="search-template">User name: </span><span class="search-info">{{ search.username }}</span></p>
-            <p class="title"><span class="search-template">Search title: </span><span class="search-info">{{ search.search_title}}</span></p>
-            <p class="title"><span class="search-template">Search date: </span><span class="search-info">{{ search.search_date }}</span></p>
-            <p class="title"><span class="search-template">Phrase: </span><span class="search-info">{{ search.phrase | striptags }}</span></p>
-        </div>
-    </div>
-    {% endfor %}
+
+    
 
     <!-- display results -->
     <div id="result-display-container" class="saved-results-display-container">
