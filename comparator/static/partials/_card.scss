@@ -1,0 +1,113 @@
+.card {
+  position: relative;
+  min-height: 40vh;
+  width: 30vw;
+  min-width: 30%;
+  margin: 15px 1.5% 30px;
+  padding: 15px;
+  font-size: 1.6rem;
+  
+  background-color: $color-bg;
+  border: 15px solid #fff;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow: 4px 4px 6px rgba(221, 221, 221, .4);
+
+  @include tablet-vert {
+    min-width: 47%
+  }
+
+  @include mobile {
+    min-width: 90%;
+    margin: 5px 5% 20px;
+  }
+
+  &__icon {
+    position: absolute;
+    top: 5px;
+    left: 15px;
+    font-size: 4rem;
+
+    img {
+      height: 70px;
+    }
+
+    &--ebay {
+      padding-left: 5px;
+    }
+
+    &--allegro {
+      top: 0;
+      left: 0;
+    }
+  }
+
+  &__img-wrapper {
+    border-radius: 50%;
+    height: 150px;
+    width: 150px;
+    background-color: #fff;
+    overflow: hidden;
+    text-align: center;
+    margin: 30px auto 0;
+
+    @include mobile-small {
+      margin-top: 40px;
+    }
+  }
+
+  &__img {
+    height: 100%;
+  }
+
+  &__price {
+    font-weight: 500;
+  }
+
+  h3, p {
+    font-size: 16px;
+
+    @include mobile {
+      font-size: 1.4rem;
+    }
+
+    @include mobile-small() {
+      font-size: 1.2rem;
+    }
+  }
+
+  p {
+    padding-left: 10px;
+  }
+
+  &__btn {
+    align-self: center;
+    text-align: center;
+
+    @include mobile-small {
+      padding: 10px 20px;
+    }
+  }
+
+  // additional styling for first results
+  &__result-btns {
+      display: flex;
+      justify-content: space-between;
+
+      .button {
+        font-size: 1.4rem;
+        padding: 5px 10px;
+
+        max-width: 49%;
+        min-width: 40%;
+    }
+
+    button:hover {
+      color: $color-success;
+      border-color: $color-success;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+$font-title: 'Prompt', sans-serif;
+$font-regular: 'Raleway', sans-serif;
+$font-main-title: 'Montserrat', sans-serif;
+
+$color-text: #424B57;
+$color-bg: #eee;
+$color-text-nav: #aaa;
+$color-ham: #ccc;
+$color-btn: #c4c4c4;
+$color-primary: #007bff;
+$color-primary-opaque: rgba(0, 123, 255, .4);
+$color-success: #28a745;
+$color-success-opaque: rgba(40, 167, 69, .3);
+
+$width-home-input: 500px;
+
+@mixin tablet-vert {
+  @media (max-width: 1025px) and (min-width: 576px) and (orientation: portrait) {
+    @content
+  }
+};
+
+@mixin tablet {
+  @media (max-width: 767px) {
+    @content
+  }
+};
+
+@mixin mobile {
+  @media (max-width: 576px) {
+    @content
+  }
+};
+
+@mixin mobile-small {
+  @media (max-width: 320px) {
+    @content
+  }
+};

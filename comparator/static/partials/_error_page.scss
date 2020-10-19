@@ -1,0 +1,39 @@
+.error-page {
+  height: 40vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+
+  &__box {
+    position: relative;
+
+    h3 {
+      position: relative;
+      font-size: 10rem;
+      left: -50px;
+      bottom: 30px;
+      opacity: .5;
+
+      @include mobile {
+        font-size: 5rem;
+        left: -30px;
+        bottom: 15px;
+      }
+    }
+
+    p {
+      position: absolute;
+      bottom: 0;
+      right: -50px;
+      font-size: 6rem;
+      z-index: 4;
+
+      @include mobile {
+        right: -30px;
+        font-size: 3rem;
+      }
+    }
+
+    
+  }
+}

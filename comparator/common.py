@@ -23,12 +23,13 @@ from bs4 import BeautifulSoup
 # imports for google tranlate API
 from google.cloud import translate_v2
 from google.oauth2 import service_account
+from comparator import google_key
 
 # header for tricking amazon that 'it is not a robot'
 headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64;     x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding":"gzip, deflate",     "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 
 # credentials for google translate API
-client = service_account.Credentials.from_service_account_file('.\\comparator\\credentials\\flask-search-compare-d835fbdd59a9.json')
+client = service_account.Credentials.from_service_account_file(google_key)
 
 
 ### TRANSLATOR FUNCTION
@@ -170,8 +171,10 @@ def ebay_search(phrase):
     soup = BeautifulSoup(source, 'lxml')
     
     def create_result_list(soup_obj):
-        articles2 = soup_obj.find('div', id='ResultSetItems')
-        results_list = articles2.find_all('li', class_='sresult')
+        articles2 = soup_obj.find('ul', class_='srp-list')
+        results_list = articles2.find_all('li', limit=15)
+
+        # print_to_file(str(results_list))
 
         return results_list
 
@@ -179,14 +182,17 @@ def ebay_search(phrase):
         
         results_json = []
         
-        for item in html_results:
+        for i, item in enumerate(html_results):
             platform = 'ebay'
-            title = item.h3.text.strip()
-            link = item.h3.a['href']
-            image = item.find('div', class_='img').div.a.img['src']
+            title = item.img['alt']
+            # h3.text.strip()
+            link = item.a['href']
+            image = item.find('div', class_='s-item__image-wrapper').img['src']
             price_info = []
 
-            price_rawlist = item.find('ul', class_="lvprices").find_all('span')
+            print(i, title)
+
+            price_rawlist = item.find('span', class_="s-item__price").find_all('span')
             for i, element in enumerate(price_rawlist):
                 formated_element =  element.text.strip()
                 if len(formated_element) > 1:
@@ -205,6 +211,8 @@ def ebay_search(phrase):
     
     result_list = create_result_list(soup)
     result_ebay = create_result_json(result_list)
+
+    print_results(result_ebay)
 
     return result_ebay
 

@@ -1,108 +1,195 @@
 {% extends 'base.html' %}
+{% set small_class = 'search--short' %}
 
 {% block search %}
-<div class="search-head container d-flex flex-row justify-content-between">
-    <div class="search-details-wrapper d-block">
-        <h1>Results</h1>
-        <p>Phrase: {{ phrase }} <span class="font-italic"> / pol: {{ pol_phrase }}</span></p>
+<div class="results container d-flex flex-row justify-content-between">
+  <div class="results__details display d-block">
+    <h2 class="results__title">search info</h2>
+    <div class="paragraph results__paragraph">
+      <h3>phrase:</h3>
+      <p>{{ phrase }}
+        {% if trans_phrase %}
+        <span class="font-italic"> / pol: {{ trans_phrase }}</span>
+        {% endif %}
+      </p>
     </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-        Save Results
-    </button>
+    <div class="paragraph results__paragraph">
+      <h3>platforms:</h3>
+      <p>{{ platforms }}</p>
+    </div>
+  </div>
 </div>
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form method="POST">
-                <div class="form-group">
-                  <input type="text" class="form-control" name="your-name" id="your-name" placeholder="Your Name">
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control" name="search-title" id="search-title" placeholder="Search Title">
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="btn btn-primary" value="Save">
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <span class="font-italic">* Search Title does not have to be the same as the search phrase, it may be anything that allows you to identify your search.</span>
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content display">
+      <div class="modal-header ">
+        <h2 class="modal-title modal__title" id="exampleModalLongTitle">Save search</h2>
+        <button type="button" class="close modal__close-btn" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body modal__body">
+        <form method="POST" class="modal__form">
+          <p class="form-group modal__form-group">
+            <input type="text" class="form-control search-input" name="your-name" id="your-name"
+              placeholder="Your Name">
+          </p>
+          <p class="form-group">
+            <input type="text" class="form-control search-input" name="search-title" id="search-title"
+              placeholder="Search Title" required>
+          </p>
+          <p class="form-group" id="search-form">
+            <select class="form-control form-control-sm search-input" id="search-id">
+              <option value="new"> --- Create new search --- </option>
+              {% for search in searches %}
+              <option value="{{ search.id }}"> {{ search.search_title }} / <span class="phrase">(
+                  {% for phrase in search.phrases %}
+                  <span class="phrase">{{ phrase }}</span>
+                  {% endfor %}
+                  )</span> </option>
+              {% endfor %}
+            </select>
+          </p>
+          <p class="form-group">
+            <input type="submit" class="btn button modal__btn" id="search-submit" value="Save">
+          </p>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="message-text modal__message"></span>
+        <span class="font-italic modal__note">* Search Title does not have to be the same as the search phrase, it may
+          be anything that allows you to identify your search.</span>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
 
+<!-- results for specific platforms -->
 {% block result %}
-{% if amazon %} 
-    <div id="amazon-results" class="container d-flex flex-row" style="overflow: auto">
-        {% for result in results %} 
-          {% if result.platform == 'amazon' %}
-          <div class="card col-3">
-          <img class="card-img-top" src="{{ result['image'] }}" alt="Card image cap" style="filter: grayscale(100%);">
-              <div class="card-body">
-                <h6 class="card-title">{{ result['title'] }}</h6>
-                <p class="card-text">
-                    {% for item in result['price'] %}
-                      <p>{{ item | safe }}</p>
-                    {% endfor %}
-                </p>
-                <a href="{{ result['link'] }}" class="btn btn-primary">Go to the item</a>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-    </div>
-{% endif %}
-
-{% if ebay %} 
-<div id="ebay-results" class="container d-flex flex-row" style="overflow: auto">
+{% if results|length == 0 %}
+<div class="error-page">
+  <div class="error-page__box">
+    <h3>Nothing</h3>
+    <p>to display...</p>
+  </div>
+</div>
+{% endif%}
+{% if amazon %}
+<div class="results-display__wrapper">
+  <div id="amazon-display" class="container results-display results-display--amazon">
+    <div class="results-display__scroll results-display__scroll--right scroll" data-direction="right"><i
+        class="fas fa-chevron-right"></i></div>
+    <div class="results-display__scroll results-display__scroll--left scroll" data-direction="left"><i
+        class="fas fa-chevron-left"></i></div>
     {% for result in results %}
-      {% if result.platform == 'ebay' %}
-        <div class="card col-3">
-          <img class="card-img-top" src="{{ result['image'] }}" alt="Card image cap">
-          <div class="card-body">
-            <h6 class="card-title">{{ result['title'] }}</h6>
-            <p class="card-text">
-                {% for item in result['price'] %}
-                  <p>{{ item | safe }}</p>
-                {% endfor %}
-            </p>
-            <a href="{{ result['link'] }}" class="btn btn-primary">Go to the item</a>
-          </div>
-        </div>
-      {% endif %}
+    {% if result.platform == 'amazon' %}
+    <div id="{{ result.id }}" class="card single-result">
+      <div class="card__icon card__icon--amazon">
+        <i class="fab fa-amazon"></i>
+      </div>
+      <div class="card__img-wrapper">
+        <img class="card__img" src="{{ result.image }}" alt="Image not found">
+      </div>
+      <div class="card__title">
+        <h3>Title:</h3>
+        <p>{{ result.title }}</p>
+      </div>
+      <div class="card__price-info">
+        <h3>Price:</h3>
+        <p class="price">{{ result.price }}</p>
+      </div>
+      <div class="card__result-btns">
+        <a href="{{ result.link }}" class="button card__btn card__btn--link">Go to item</a>
+        <button class="button card__btn card__btn--save save-btn" data-toggle="modal"
+          data-target="#exampleModalCenter">Save
+          item</button>
+      </div>
+    </div>
+    {% endif %}
     {% endfor %}
+  </div>
 </div>
 {% endif %}
 
-{% if allegro %} 
-<div id="ebay-results" class="container d-flex flex-row" style="overflow: auto">
+{% if ebay %}
+<div class="results-display__wrapper">
+  <div id="ebay-display" class="container results-display results-display--ebay">
+    <div class="results-display__scroll results-display__scroll--right scroll" data-direction="right"><i
+        class="fas fa-chevron-right"></i></div>
+    <div class="results-display__scroll results-display__scroll--left scroll" data-direction="left"><i
+        class="fas fa-chevron-left"></i></div>
     {% for result in results %}
-      {% if result.platform == 'allegro' %}
-        <div class="card col-3">
-            <img class="card-img-top" src="{{ result['image'] }}" alt="Card image cap">
-            <div class="card-body">
-              <h6 class="card-title">{{ result['title'] }}</h6>
-              <p class="card-text">
-                  {% for item in result['price'] %}
-                  <p>{{ item | safe }}</p>
-                  {% endfor %}
-              </p>
-              <a href="{{ result['link'] }}" class="btn btn-primary">Go to the item</a>
-            </div>
-        </div>
-      {% endif %}
+    {% if result.platform == 'ebay' %}
+    <div id="{{ result.id }}" class="card single-result">
+      <div class="card__icon card__icon--ebay">
+        <i class="fab fa-ebay"></i>
+      </div>
+      <div class="card__img-wrapper">
+        <img class="card__img" src="{{ result.image }}" alt="Image not found">
+      </div>
+      <div class="card__title">
+        <h3>Title:</h3>
+        <p>{{ result.title }}</p>
+      </div>
+      <div class="card__price-info">
+        <h3>Price:</h3>
+        <p class="price">{{ result.price }}</p>
+      </div>
+      <div class="card__result-btns">
+        <a href="{{ result.link }}" class="button card__btn card__btn--link">Go to item</a>
+        <button class="button card__btn card__btn--save save-btn" data-toggle="modal"
+          data-target="#exampleModalCenter">Save
+          item</button>
+      </div>
+    </div>
+    {% endif %}
     {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if allegro %}
+<div class="results-display__wrapper">
+  <div id="allegro-results" class="container results-display results-display--allegro">
+    <div class="results-display__scroll results-display__scroll--right scroll" data-direction="right"><i
+        class="fas fa-chevron-right"></i></div>
+    <div class="results-display__scroll results-display__scroll--left scroll" data-direction="left"><i
+        class="fas fa-chevron-left"></i></div>
+    {% for result in results %}
+    {% if result.platform == 'allegro' %}
+    <div id="{{ result.id }}" class="card single-result">
+      <div class="card__icon card__icon--allegro">
+        <img class="allegro" src="{{ url_for( 'static', filename='./img/allegro-icon.png' ) }}" alt="">
+      </div>
+      <div class="card__img-wrapper">
+        <img class="card__img" src="{{ result.image }}" alt="Image not found">
+      </div>
+      <div class="card__title">
+        <h3>Title:</h3>
+        <p>{{ result.title }}</p>
+      </div>
+      <div class="card__price-info">
+        <h3>Price:</h3>
+        <p class="price">{{ result.price }}</p>
+      </div>
+      <div class="card__result-btns">
+        <a href="{{ result.link }}" class="button card__btn card__btn--link">Go to item</a>
+        <button class="button card__btn card__btn--save save-btn" data-toggle="modal"
+          data-target="#exampleModalCenter">Save
+          item</button>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endblock %}
 
+{% block script %}
+<script src="{{ url_for( 'static', filename='/js/save.js') }}"></script>
+<script src="{{ url_for( 'static', filename='/js/scroll.js') }}"></script>
+{% endblock %}

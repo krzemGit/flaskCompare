@@ -1,0 +1,56 @@
+.about {
+  padding: 30px 0 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  @include tablet-vert {
+    min-height: calc(100vh - 101px);
+    padding: 50px 50px 130px;
+    justify-content: space-evenly;
+  }
+
+  @include tablet {
+    padding: 10px 10px 90px;
+  }
+
+
+  &__display {
+    display: flex;
+    padding: 10px;
+    margin-bottom: 20px;
+
+    @include tablet {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: left;
+      margin-bottom: 5px;
+
+      @include tablet {
+        text-align: center;
+        margin: 20px 0;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 10rem;
+    padding: 10px 20px;
+
+    display: grid;
+    place-items: center;
+
+    i.fa-code {
+      font-size: 6rem;
+      padding-top: 0;
+      // font-weight: 500;
+    }
+
+    img {
+      height: 100px;
+    }
+  }
+}

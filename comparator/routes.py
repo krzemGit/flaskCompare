@@ -68,6 +68,7 @@ def results():
             results.extend(amazon_search(phrase))
         if ebay:
             results.extend(ebay_search(phrase))
+            print(ebay_search(phrase))
         if allegro:
             results.extend(allegro_search(trans_phrase))
         session['sphrase'] = phrase

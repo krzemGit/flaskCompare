@@ -1,93 +1,113 @@
 {% extends 'base.html' %}
+{% set active_page = 'saved results' %}
 
 {% block head %}
-    <meta id="identifier" template-name="{{ template_name }}">
+<meta id="identifier" template-name="{{ template_name }}">
 {% endblock %}
 
 {% block search %}
 
-<section class="saved-results-head">
-    <div class="display-search-container">
+<section class="saved-results">
+    <div class="saved-results__details display">
+        <h2 class="saved-results__title">search info</h2>
         <!-- display search -->
         {% for search in searches if search.id == search_id %}
-            <div class="search-wrapper" class="mb-5">
-                <div class="saved-result--username"><p class="search-template">User name: </p><p class="search-info">{{ search.username }}</p></div>
-                <div class="saved-result--title"><p class="search-template">Search title: </p><p class="search-info">{{ search.search_title}}</p></div>
-                <div class="saved-result--date"><p class="search-template">Search date: </p><p class="search-info">{{ search.search_date.strftime('%d-%m-%Y') }}</p></div>
-                <div class="saved-result--phrase"><p class="search-template">Phrase: </p><p class="search-info">{{ search.phrase | striptags }}</p></div>
-                <div class="saved-result--platforms"><p class="search-template">pltaforms: </p>
-                    {% for result in results %}
-                        {% if result.search_id == search.id %}
-                            <p class="search-info">{{ result.platform }}</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>                
-            </div>
+        <!-- <div class="search-wrapper" class="mb-5"> -->
+        <div class="saved-result__paragraph paragraph">
+            <h3 class="search-template">User name: </h3>
+            <p class="search-info">{{ search.username }}</p>
+        </div>
+        <div class="saved-result__paragraph paragraph">
+            <h3 class="search-template">Search title: </h3>
+            <p class="search-info">{{ search.search_title}}</p>
+        </div>
+        <div class="saved-result__paragraph paragraph">
+            <h3 class="search-template">Search date: </h3>
+            <p class="search-info">{{ search.search_date.strftime('%d-%m-%Y') }}</p>
+        </div>
+        <div class="saved-result__paragraph paragraph">
+            <h3 class="search-template">Phrase: </h3>
+            <p class="search-info">{{ search.get_phrases() }}</p>
+        </div>
+        <div class="saved-result__paragraph paragraph">
+            <h3 class="search-template">Platforms: </h3>
+            <p class="search-info">{{ search.get_platforms() }}</p>
+        </div>
+        <!-- </div> -->
         {% endfor %}
-        </div>
-        <div class="head-separator"></div>
-        <!-- form -->
-    <form action="{{ url_for('saved_results') }}" method="get" class="saved-results">
-        <div class="option-wrapper">
-            <select name="id" id="id">
-                {% if request.method == 'GET' %}
-                    {% if id == 0 %}
-                        <option value="0"><div class="option">=== Choose your search ===</div></option> 
-                    {% else %}
-                        <option value="0"><div class="option">=== Choose another search ===</div></option>
-                    {% endif %}
-                    {% for search in searches %}
-                        <option value="{{search.id}}"><div class="option"><span>{{ search.search_title }}</span> | <span>phrase: {{ (search.phrase|striptags()).split()[0] }}</span> | <span>{{ search.search_date.strftime('%d-%m-%Y') }}</span></div></option>
-                    {% endfor %}
-                {% endif %}
-                
-            </select>
-        </div>
-    </form>
+    </div>
+    <!-- results list -->
+    <div class="saved-results__details display">
+        <h2 class="saved-results__title">choose saved search:</h2>
+        <ul class="saved-results__list">
+            {% for search in searches %}
+            <li class="saved-results__item">
+                <a href="{{ url_for('saved_results', id=search.id) }}"
+                    class="saved-result__link">{{ search.search_title }} |
+                    <span>{{ search.search_date.strftime('%d-%m-%Y') }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </section>
 <!-- alert -->
 {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-primary" role="alert">
-            <ul class=flashes>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+{% if messages %}
+<div class="alert alert-primary" role="alert">
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% endwith %}
 {% endblock %}
 
-{% block results %}
+{% block result %}
 
-    
 
-    <!-- display results -->
-    <div id="result-display-container" class="saved-results-display-container">
-        {% for platform in platforms %}
-        <div id="{{ platform }}-results" class="container d-flex flex-row" style="overflow: auto">
-            {% for result in results if result.platform == platform %}
-                <div id="{{ result.id }}" class="card col-3 single-result">
-                <img class="card-img-top" src="{{ result.image }}" alt="Card image cap" style="filter: grayscale(100%);">
-                    <div class="card-body">
-                        <h6 class="card-title">{{ result.title }}</h6>
-                        <p class="card-text">
-                            {% for item in result.price %}
-                                <p>{{ item | safe }}</p>
-                            {% endfor %}
-                        </p>
-                        <a href="{{ result.link }}" class="btn btn-primary">Go to the item</a>
-                    </div>
-                </div>
-            {% endfor %}
+
+<!-- display results -->
+<div class="saved-display__wrapper">
+    <div id="saved-display" class="saved-display container">
+        <div class="saved-display__scroll saved-display__scroll--right scroll" data-direction="right"><i
+                class="fas fa-chevron-right"></i></div>
+        <div class="saved-display__scroll saved-display__scroll--left scroll" data-direction="left"><i
+                class="fas fa-chevron-left"></i></div>
+        {% for result in results %}
+        <div id="{{ result.id }}" class="card single-result">
+            <div class="card__icon">
+                {% if result.platform == 'amazon' %}
+                <i class="fab fa-amazon"></i>
+                {% elif result.platform == 'ebay' %}
+                <i class="fab fa-ebay"></i>
+                {% elif result.platform == 'allegro' %}
+                <img class="allegro" src="{{ url_for( 'static', filename='./img/allegro-icon.png' ) }}" alt="">
+                {% else %}
+                <i class="far fa-question-circle"></i>
+                {% endif %}
+            </div>
+            <div class="card__img-wrapper">
+                <img class="card__img" src="{{ result.image }}" alt="Image not found">
+            </div>
+            <div class="card__title">
+                <h3>Title:</h3>
+                <p>{{ result.title }}</p>
+            </div>
+            <div class="card__price-info">
+                <h3>Price:</h3>
+                <p class="price">{{ result.price_info }}</p>
+            </div>
+            <a href="{{ result.link }}" class="button card__btn card__btn--link">Go to the item</a>
         </div>
-    {% endfor %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
 
 {% block script %}
-<script src="{{ url_for( 'static' , filename='ajax.js')}}"></script>
+<script src="{{ url_for( 'static' , filename='/js/scroll.js')}}"></script>
 {% endblock %}
-

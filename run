@@ -1,0 +1,3 @@
+export COMPARATOR_SETTINGS=credentials/app_settings.cfg
+export FLASK_ENV=Development
+python run.py
